@@ -54,7 +54,7 @@ const Footer = () => {
           </div>
 
           <div className="footer-item text-center">
-            <h6 className="fs-17 fw-6">About Shopping Hub</h6>
+            <h6 className="fs-17 fw-6">More detail</h6>
             <ul>
               <li>
                 <a href="/terms" className="fs-15">
