@@ -2,18 +2,17 @@ import { createSlice } from "@reduxjs/toolkit";
 import { BASE_URL } from "../../utils/apiURL";
 import { STATUS } from "../../utils/status";
 
-const initialState = {
-  data: [],
-  status: STATUS.IDLE,
-  catchProductsAll: [],
-  catchProductsAllStatus: STATUS.IDLE,
-  catchProductSingle: [],
-  catchProductSingleStatus: STATUS.IDLE,
-};
-
 const categorySlice = createSlice({
   name: "category",
-  initialState,
+  initialState: {
+    data: [],
+    status: STATUS.IDLE,
+    catchProductAll: [],
+    catchProductAllStatus: STATUS.IDLE,
+    catchProductSingle: [],
+    catchProductSingleStatus: STATUS.IDLE,
+  },
+
   reducers: {
     setCategories(state, action) {
       state.data = action.payload;
@@ -21,11 +20,11 @@ const categorySlice = createSlice({
     setStatus(state, action) {
       state.status = action.payload;
     },
-    setCategoriesProductsAll(state, action) {
-      state.catchProductsAll = action.payload;
+    setCategoriesProductAll(state, action) {
+      state.catchProductAll.push(action.payload);
     },
     setCategoriesStatusAll(state, action) {
-      state.catchProductsAllStatus = action.payload;
+      state.catchProductAllStatus = action.payload;
     },
     setCategoriesProductSingle(state, action) {
       state.catchProductSingle = action.payload;
@@ -39,12 +38,11 @@ const categorySlice = createSlice({
 export const {
   setCategories,
   setStatus,
-  setCategoriesProductsAll,
+  setCategoriesProductAll,
   setCategoriesStatusAll,
   setCategoriesProductSingle,
   setCategoriesStatusSingle,
 } = categorySlice.actions;
-
 export default categorySlice;
 
 export const fetchCategories = () => {
@@ -52,7 +50,6 @@ export const fetchCategories = () => {
     dispatch(setStatus(STATUS.LOADING));
     try {
       const response = await fetch(`${BASE_URL}categories`);
-
       const data = await response.json();
       dispatch(setCategories(data.slice(0, 5)));
       dispatch(setStatus(STATUS.IDLE));
@@ -64,13 +61,9 @@ export const fetchCategories = () => {
 
 export const fetchProductsByCategory = (categoryID, dataType) => {
   return async function fetchCategoryProductThunk(dispatch) {
-    if (dataType === "all") {
-      dispatch(setCategoriesStatusAll(STATUS.LOADING));
-    }
-
-    if (dataType === "single") {
+    if (dataType === "all") dispatch(setCategoriesStatusAll(STATUS.LOADING));
+    if (dataType === "single")
       dispatch(setCategoriesStatusSingle(STATUS.LOADING));
-    }
 
     try {
       const response = await fetch(
@@ -78,22 +71,15 @@ export const fetchProductsByCategory = (categoryID, dataType) => {
       );
       const data = await response.json();
       if (dataType === "all") {
-        dispatch(setCategoriesProductsAll(data.slice(0, 10)));
+        dispatch(setCategoriesProductAll(data.slice(0, 10)));
         dispatch(setCategoriesStatusAll(STATUS.IDLE));
       }
-
       if (dataType === "single") {
         dispatch(setCategoriesProductSingle(data.slice(0, 20)));
         dispatch(setCategoriesStatusSingle(STATUS.IDLE));
       }
     } catch (error) {
-      if (dataType === "all") {
-        dispatch(setCategoriesStatusAll(STATUS.ERROR));
-      }
-
-      if (dataType === "single") {
-        dispatch(setCategoriesStatusSingle(STATUS.ERROR));
-      }
+      dispatch(setCategoriesStatusAll(STATUS.ERROR));
     }
   };
 };
